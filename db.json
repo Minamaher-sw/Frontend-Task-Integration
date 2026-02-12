@@ -1,35 +1,171 @@
 {
   "languages": [
-    { "id": "en", "name": "English", "code": "en" },
-    { "id": "ar", "name": "Arabic", "code": "ar" },
-    { "id": "fr", "name": "French", "code": "fr" },
-    { "id": "es", "name": "Spanish", "code": "es" },
-    { "id": "de", "name": "German", "code": "de" },
-    { "id": "it", "name": "Italian", "code": "it" },
-    { "id": "pt", "name": "Portuguese", "code": "pt" },
-    { "id": "zh", "name": "Chinese", "code": "zh" },
-    { "id": "ja", "name": "Japanese", "code": "ja" },
-    { "id": "ko", "name": "Korean", "code": "ko" }
+    {
+      "id": "en",
+      "name": "English",
+      "code": "en"
+    },
+    {
+      "id": "ar",
+      "name": "Arabic",
+      "code": "ar"
+    },
+    {
+      "id": "fr",
+      "name": "French",
+      "code": "fr"
+    },
+    {
+      "id": "es",
+      "name": "Spanish",
+      "code": "es"
+    },
+    {
+      "id": "de",
+      "name": "German",
+      "code": "de"
+    },
+    {
+      "id": "it",
+      "name": "Italian",
+      "code": "it"
+    },
+    {
+      "id": "pt",
+      "name": "Portuguese",
+      "code": "pt"
+    },
+    {
+      "id": "zh",
+      "name": "Chinese",
+      "code": "zh"
+    },
+    {
+      "id": "ja",
+      "name": "Japanese",
+      "code": "ja"
+    },
+    {
+      "id": "ko",
+      "name": "Korean",
+      "code": "ko"
+    }
   ],
   "voices": [
-    { "id": "alloy", "name": "Alloy", "tag": "Premium", "language": "en" },
-    { "id": "echo", "name": "Echo", "tag": "Standard", "language": "en" },
-    { "id": "fable", "name": "Fable", "tag": "Premium", "language": "en" },
-    { "id": "onyx", "name": "Onyx", "tag": "Standard", "language": "en" },
-    { "id": "nova", "name": "Nova", "tag": "Premium", "language": "en" },
-    { "id": "shimmer", "name": "Shimmer", "tag": "Standard", "language": "en" }
+    {
+      "id": "alloy",
+      "name": "Alloy",
+      "tag": "Premium",
+      "language": "en"
+    },
+    {
+      "id": "echo",
+      "name": "Echo",
+      "tag": "Standard",
+      "language": "en"
+    },
+    {
+      "id": "fable",
+      "name": "Fable",
+      "tag": "Premium",
+      "language": "en"
+    },
+    {
+      "id": "onyx",
+      "name": "Onyx",
+      "tag": "Standard",
+      "language": "en"
+    },
+    {
+      "id": "nova",
+      "name": "Nova",
+      "tag": "Premium",
+      "language": "en"
+    },
+    {
+      "id": "shimmer",
+      "name": "Shimmer",
+      "tag": "Standard",
+      "language": "en"
+    }
   ],
   "prompts": [
-    { "id": "default", "name": "Default Prompt", "description": "General-purpose prompt" },
-    { "id": "sales", "name": "Sales Prompt", "description": "Optimized for sales" },
-    { "id": "support", "name": "Support Prompt", "description": "Optimized for support" },
-    { "id": "custom", "name": "Custom Prompt", "description": "Build your own" }
+    {
+      "id": "default",
+      "name": "Default Prompt",
+      "description": "General-purpose prompt"
+    },
+    {
+      "id": "sales",
+      "name": "Sales Prompt",
+      "description": "Optimized for sales"
+    },
+    {
+      "id": "support",
+      "name": "Support Prompt",
+      "description": "Optimized for support"
+    },
+    {
+      "id": "custom",
+      "name": "Custom Prompt",
+      "description": "Build your own"
+    }
   ],
   "models": [
-    { "id": "pro", "name": "Pro", "description": "Highest quality, lowest latency" },
-    { "id": "standard", "name": "Standard", "description": "Balanced quality and cost" },
-    { "id": "flex", "name": "Flex", "description": "Cost-effective for high volume" }
+    {
+      "id": "pro",
+      "name": "Pro",
+      "description": "Highest quality, lowest latency"
+    },
+    {
+      "id": "standard",
+      "name": "Standard",
+      "description": "Balanced quality and cost"
+    },
+    {
+      "id": "flex",
+      "name": "Flex",
+      "description": "Cost-effective for high volume"
+    }
   ],
-  "agents": [],
-  "attachments": []
+  "agents": [
+    {
+      "name": "Mina Maher Mosadef",
+      "description": "Hi Mina Maher",
+      "callType": "outbound",
+      "language": "en",
+      "voice": "echo",
+      "prompt": "Get all Information",
+      "model": "standard",
+      "latency": 0.5,
+      "speed": 110,
+      "callScript": "Hi My friend",
+      "serviceDescription": "hi from Activity",
+      "attachments": [
+        2
+      ],
+      "tools": {
+        "allowHangUp": true,
+        "allowCallback": false,
+        "liveTransfer": false
+      },
+      "id": 1
+    }
+  ],
+  "attachments": [
+    {
+      "key": "dc85bce1-31e5-4b1f-91dd-58e1c618d459",
+      "fileName": "photo_6028528865786923941_x.pdf",
+      "fileSize": 35158,
+      "mimeType": "application/pdf",
+      "id": 1
+    },
+    {
+      "key": "e393149a-66e3-4527-8b85-1de4d139ed2d",
+      "fileName": "photo_6028528865786923941_x.pdf",
+      "fileSize": 35158,
+      "mimeType": "application/pdf",
+      "id": 2
+    }
+  ]
 }
