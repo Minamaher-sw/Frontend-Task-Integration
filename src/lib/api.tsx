@@ -1,288 +1,258 @@
 /**
- * API Utility Functions
- * Centralized API calls to the backend server
- * Implements all endpoints from the task requirements
+ * API Utility - Production-ready API client
+ * Handles all backend communication with proper error handling and types.
+ * * @module APIUtility
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+import { ApiError, handleResponse } from "./error.handle";
+import {
+    Agent,
+    Attachment,
+    Language, Model,
+    Prompt,
+    TestCallResponse,
+    UploadResponse,
+    UploadUrlResponse,
+    Voice
+} from "./interfaces";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+
 
 // ============================================================================
-// TYPES
-// ============================================================================
-
-export interface Language {
-    id: string;
-    name: string;
-    code: string;
-}
-
-export interface Voice {
-    id: string;
-    name: string;
-    tag: string;
-    language: string;
-}
-
-export interface Prompt {
-    id: string;
-    name: string;
-    description: string;
-}
-
-export interface Model {
-    id: string;
-    name: string;
-    description: string;
-}
-
-export interface Agent {
-    id: string;
-    name: string;
-    description?: string;
-    callType: string;
-    language: string;
-    voice: string;
-    prompt: string;
-    model: string;
-    latency: number;
-    speed: number;
-    callScript?: string;
-    serviceDescription?: string;
-    attachments?: string[];
-    tools?: {
-        allowHangUp: boolean;
-        allowCallback: boolean;
-        liveTransfer: boolean;
-    };
-}
-
-export interface Attachment {
-    id: string;
-    key: string;
-    fileName: string;
-    fileSize: number;
-    mimeType: string;
-}
-
-export interface UploadUrlResponse {
-    key: string;
-    signedUrl: string;
-    expiresIn: number;
-}
-
-export interface UploadResponse {
-    success: boolean;
-    key: string;
-    message: string;
-}
-
-export interface TestCallResponse {
-    success: boolean;
-    callId: string;
-    agentId: string;
-    status: string;
-}
-
-// ============================================================================
-// LANGUAGE API - TASK 1
+// FETCH HELPERS
 // ============================================================================
 
 /**
- * Fetch all available languages for the dropdown
- * GET /api/languages
+ * Base fetch wrapper that injects API base URL and default headers.
+ * * @template T - The expected return type
+ * @param {string} endpoint - The API endpoint path (starting with /)
+ * @param {RequestInit} [options] - Standard fetch options
+ * @returns {Promise<T>} The parsed JSON response
+ * @throws {ApiError} Handled by the handleResponse utility
+ */
+async function fetchAPI<T>(
+    endpoint: string,
+    options?: RequestInit
+): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+
+    const response = await fetch(url, {
+        headers: {
+            "Content-Type": "application/json",
+            ...options?.headers,
+        },
+        ...options,
+    });
+
+    return handleResponse<T>(response);
+}
+
+/**
+ * Helper for POST requests with JSON body.
+ * * @template T - The expected return type
+ * @param {string} endpoint - The API endpoint path
+ * @param {unknown} data - The body object to stringify
+ * @returns {Promise<T>}
+ */
+async function postJSON<T>(
+    endpoint: string,
+    data: unknown
+): Promise<T> {
+    return fetchAPI<T>(endpoint, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+/**
+ * Helper for PUT requests with JSON body.
+ * * @template T - The expected return type
+ * @param {string} endpoint - The API endpoint path
+ * @param {unknown} data - The body object to stringify
+ * @returns {Promise<T>}
+ */
+async function putJSON<T>(
+    endpoint: string,
+    data: unknown
+): Promise<T> {
+    return fetchAPI<T>(endpoint, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+// ============================================================================
+// LANGUAGE API
+// ============================================================================
+
+/**
+ * Retrieves a list of all supported languages from the backend.
+ * * @async
+ * @returns {Promise<Language[]>} Array of language objects
+ * @throws {Error} Re-throws after logging if fetch fails
  */
 export async function fetchLanguages(): Promise<Language[]> {
     try {
-        const response = await fetch(`${API_BASE_URL}/languages`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch languages: ${response.statusText}`);
-        }
-        return await response.json();
+        return await fetchAPI<Language[]>("/languages");
     } catch (error) {
-        console.error("Error fetching languages:", error);
-        return [];
+        console.error("[API] Failed to fetch languages:", error);
+        throw error;
     }
 }
 
 // ============================================================================
-// VOICE API - TASK 1
+// VOICE API
 // ============================================================================
 
 /**
- * Fetch all available voices for the dropdown
- * GET /api/voices
+ * Retrieves a list of all available AI voices.
+ * * @async
+ * @returns {Promise<Voice[]>} Array of voice objects
  */
 export async function fetchVoices(): Promise<Voice[]> {
     try {
-        const response = await fetch(`${API_BASE_URL}/voices`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch voices: ${response.statusText}`);
-        }
-        return await response.json();
+        return await fetchAPI<Voice[]>("/voices");
     } catch (error) {
-        console.error("Error fetching voices:", error);
-        return [];
+        console.error("[API] Failed to fetch voices:", error);
+        throw error;
     }
 }
 
 /**
- * Filter voices by language code
+ * Client-side utility to filter a voice list by a specific language code.
+ * * @param {Voice[]} voices - List of voices to filter
+ * @param {string} languageCode - The code to filter by (e.g., 'en-US')
+ * @returns {Voice[]} Filtered array of voices
  */
-export function filterVoicesByLanguage(voices: Voice[], languageCode: string): Voice[] {
+export function filterVoicesByLanguage(
+    voices: Voice[],
+    languageCode: string
+): Voice[] {
     return voices.filter((voice) => voice.language === languageCode);
 }
 
 // ============================================================================
-// PROMPT API - TASK 1
+// PROMPT API
 // ============================================================================
 
 /**
- * Fetch all available prompt templates for the dropdown
- * GET /api/prompts
+ * Retrieves a list of pre-defined system prompts.
+ * * @async
+ * @returns {Promise<Prompt[]>}
  */
 export async function fetchPrompts(): Promise<Prompt[]> {
     try {
-        const response = await fetch(`${API_BASE_URL}/prompts`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch prompts: ${response.statusText}`);
-        }
-        return await response.json();
+        return await fetchAPI<Prompt[]>("/prompts");
     } catch (error) {
-        console.error("Error fetching prompts:", error);
-        return [];
+        console.error("[API] Failed to fetch prompts:", error);
+        throw error;
     }
 }
 
 // ============================================================================
-// MODEL API - TASK 1
+// MODEL API
 // ============================================================================
 
 /**
- * Fetch all available AI models for the dropdown
- * GET /api/models
+ * Retrieves a list of available AI models.
+ * * @async
+ * @returns {Promise<Model[]>}
  */
 export async function fetchModels(): Promise<Model[]> {
     try {
-        const response = await fetch(`${API_BASE_URL}/models`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch models: ${response.statusText}`);
-        }
-        return await response.json();
+        return await fetchAPI<Model[]>("/models");
     } catch (error) {
-        console.error("Error fetching models:", error);
-        return [];
+        console.error("[API] Failed to fetch models:", error);
+        throw error;
     }
 }
 
 // ============================================================================
-// AGENT CRUD API - TASK 3
+// AGENT API
 // ============================================================================
 
 /**
- * Create a new agent
- * POST /api/agents
+ * Creates a new AI Agent.
+ * * @async
+ * @param {Omit<Agent, "id">} agentData - The agent configuration excluding the auto-generated ID
+ * @returns {Promise<Agent>} The created agent object including its new ID
  */
-export async function createAgent(agentData: Omit<Agent, "id">): Promise<Agent | null> {
+export async function createAgent(
+    agentData: Omit<Agent, "id">
+): Promise<Agent> {
     try {
-        const response = await fetch(`${API_BASE_URL}/agents`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(agentData),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to create agent: ${response.statusText}`);
-        }
-
-        return await response.json();
+        return await postJSON<Agent>("/agents", agentData);
     } catch (error) {
-        console.error("Error creating agent:", error);
-        return null;
+        console.error("[API] Failed to create agent:", error);
+        throw error;
     }
 }
 
 /**
- * Update an existing agent
- * PUT /api/agents/:id
+ * Updates an existing AI Agent's configuration.
+ * * @async
+ * @param {string} id - The unique identifier of the agent
+ * @param {Partial<Agent>} agentData - The fields to update
+ * @returns {Promise<Agent>} The updated agent object
  */
-export async function updateAgent(id: string, agentData: Partial<Agent>): Promise<Agent | null> {
+export async function updateAgent(
+    id: string,
+    agentData: Partial<Agent>
+): Promise<Agent> {
     try {
-        const response = await fetch(`${API_BASE_URL}/agents/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(agentData),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update agent: ${response.statusText}`);
-        }
-
-        return await response.json();
+        return await putJSON<Agent>(`/agents/${id}`, agentData);
     } catch (error) {
-        console.error("Error updating agent:", error);
-        return null;
+        console.error("[API] Failed to update agent:", error);
+        throw error;
     }
 }
 
 /**
- * Fetch a single agent by ID
- * GET /api/agents/:id
+ * Retrieves details for a specific agent by ID.
+ * * @async
+ * @param {string} id - The agent ID
+ * @returns {Promise<Agent>}
  */
-export async function fetchAgentById(id: string): Promise<Agent | null> {
+export async function fetchAgentById(id: string): Promise<Agent> {
     try {
-        const response = await fetch(`${API_BASE_URL}/agents/${id}`);
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch agent: ${response.statusText}`);
-        }
-
-        return await response.json();
+        return await fetchAPI<Agent>(`/agents/${id}`);
     } catch (error) {
-        console.error("Error fetching agent:", error);
-        return null;
+        console.error("[API] Failed to fetch agent:", error);
+        throw error;
     }
 }
 
 // ============================================================================
-// FILE UPLOAD API - TASK 2 (3-Step Process)
+// FILE UPLOAD API
 // ============================================================================
 
 /**
- * STEP 1: Get a signed upload URL
- * POST /api/attachments/upload-url
+ * Requests a signed URL from the backend to securely upload a file to cloud storage.
+ * * @async
+ * @returns {Promise<UploadUrlResponse>} Contains the signedUrl and storage key
  */
-export async function getUploadUrl(): Promise<UploadUrlResponse | null> {
+export async function getUploadUrl(): Promise<UploadUrlResponse> {
     try {
-        const response = await fetch(`${API_BASE_URL}/attachments/upload-url`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to get upload URL: ${response.statusText}`);
-        }
-
-        return await response.json();
+        return await postJSON<UploadUrlResponse>("/attachments/upload-url", {});
     } catch (error) {
-        console.error("Error getting upload URL:", error);
-        return null;
+        console.error("[API] Failed to get upload URL:", error);
+        throw error;
     }
 }
 
 /**
- * STEP 2: Upload file to signed URL
- * PUT {signedUrl}
+ * Directly uploads a file to a pre-signed URL (e.g., S3 or GCS).
+ * * @async
+ * @param {string} signedUrl - The secure URL provided by getUploadUrl
+ * @param {File} file - The file object from a file input or blob
+ * @returns {Promise<UploadResponse>}
+ * @throws {ApiError} If the cloud storage provider returns a non-OK status
  */
 export async function uploadFileToSignedUrl(
     signedUrl: string,
     file: File
-): Promise<UploadResponse | null> {
+): Promise<UploadResponse> {
     try {
         const response = await fetch(signedUrl, {
             method: "PUT",
@@ -293,86 +263,93 @@ export async function uploadFileToSignedUrl(
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to upload file: ${response.statusText}`);
+            throw new ApiError(
+                response.status,
+                `Failed to upload file: ${response.statusText}`
+            );
         }
 
-        return await response.json();
+        return response.json();
     } catch (error) {
-        console.error("Error uploading file:", error);
-        return null;
+        console.error("[API] Failed to upload file:", error);
+        throw error;
     }
 }
 
 /**
- * STEP 3: Register the attachment
- * POST /api/attachments
+ * Notifies the backend that a file upload has been completed to link it to the DB.
+ * * @async
+ * @param {string} key - The storage key/path of the file
+ * @param {string} fileName - Original name of the file
+ * @param {number} fileSize - Size in bytes
+ * @param {string} mimeType - The file's MIME type
+ * @returns {Promise<Attachment>} The registered attachment record
  */
 export async function registerAttachment(
     key: string,
     fileName: string,
     fileSize: number,
     mimeType: string
-): Promise<Attachment | null> {
+): Promise<Attachment> {
     try {
-        const response = await fetch(`${API_BASE_URL}/attachments`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                key,
-                fileName,
-                fileSize,
-                mimeType,
-            }),
+        return await postJSON<Attachment>("/attachments", {
+            key,
+            fileName,
+            fileSize,
+            mimeType,
         });
-
-        if (!response.ok) {
-            throw new Error(`Failed to register attachment: ${response.statusText}`);
-        }
-
-        return await response.json();
     } catch (error) {
-        console.error("Error registering attachment:", error);
-        return null;
+        console.error("[API] Failed to register attachment:", error);
+        throw error;
     }
 }
 
 /**
- * Complete 3-step file upload process
+ * Orchestrator function that performs the full upload flow:
+ * 1. Gets a signed URL
+ * 2. Uploads the file to storage
+ * 3. Registers the attachment with the backend
+ * * @async
+ * @param {File} file - The file to upload
+ * @returns {Promise<Attachment>} The final registered attachment record
  */
-export async function uploadFile(file: File): Promise<Attachment | null> {
+export async function uploadFile(file: File): Promise<Attachment> {
     try {
-        // Step 1: Get signed URL
+        // Step 1: Get upload URL
         const uploadUrl = await getUploadUrl();
-        if (!uploadUrl) throw new Error("Failed to get upload URL");
 
         // Step 2: Upload file
-        const uploadResult = await uploadFileToSignedUrl(uploadUrl.signedUrl, file);
-        if (!uploadResult) throw new Error("Failed to upload file");
+        await uploadFileToSignedUrl(uploadUrl.signedUrl, file);
 
         // Step 3: Register attachment
         const attachment = await registerAttachment(
             uploadUrl.key,
             file.name,
             file.size,
-            file.type
+            file.type || "application/octet-stream"
         );
 
         return attachment;
     } catch (error) {
-        console.error("Error in upload process:", error);
-        return null;
+        console.error("[API] Failed to upload file:", error);
+        throw error;
     }
 }
 
 // ============================================================================
-// TEST CALL API - TASK 4
+// TEST CALL API
 // ============================================================================
 
 /**
- * Initiate a test call for an agent
- * POST /api/agents/:id/test-call
+ * Triggers a test call for a specific agent.
+ * * @async
+ * @param {string} agentId - ID of the agent to test
+ * @param {Object} testCallData - Information for the call recipient
+ * @param {string} testCallData.firstName - Recipient's first name
+ * @param {string} testCallData.lastName - Recipient's last name
+ * @param {string} testCallData.gender - Recipient's gender
+ * @param {string} testCallData.phoneNumber - Destination phone number
+ * @returns {Promise<TestCallResponse>}
  */
 export async function initiateTestCall(
     agentId: string,
@@ -382,23 +359,33 @@ export async function initiateTestCall(
         gender: string;
         phoneNumber: string;
     }
-): Promise<TestCallResponse | null> {
+): Promise<TestCallResponse> {
     try {
-        const response = await fetch(`${API_BASE_URL}/agents/${agentId}/test-call`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(testCallData),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to initiate test call: ${response.statusText}`);
-        }
-
-        return await response.json();
+        return await postJSON<TestCallResponse>(
+            `/agents/${agentId}/test-call`,
+            testCallData
+        );
     } catch (error) {
-        console.error("Error initiating test call:", error);
-        return null;
+        console.error("[API] Failed to initiate test call:", error);
+        throw error;
     }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Safely extracts a human-readable error message from various error types.
+ * * @param {unknown} error - The error object to parse
+ * @returns {string} The error message or a default fallback
+ */
+export function getErrorMessage(error: unknown): string {
+    if (error instanceof ApiError) {
+        return error.message;
+    }
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return "An unexpected error occurred";
 }
