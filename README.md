@@ -1,18 +1,18 @@
-# Frontend Developer Skills Test
+# Frontend Developer Skills Assessment
 
-**CI:** GitHub Actions workflow configured — see `.github/workflows/ci.yml`.
+**Continuous Integration:** GitHub Actions workflow is configured. See `.github/workflows/ci.yml`.
 
 ![Architecture diagram](docs/architecture.svg)
 
-Quick references: [API examples](docs/api_examples.md) · [Mock DB (`db.json`)](db.json)
+Quick links: [API Examples](docs/api_examples.md) · [Mock Database (`db.json`)](db.json)
 
-## Overview
+## Project Overview
 
-This project contains a **Create Agent** page from the Olimi AI dashboard. The UI is fully built but entirely static — all form dropdowns are hardcoded, file uploads don't persist, and the save/test-call buttons are non-functional.
+This repository features the **Create Agent** page from the Olimi AI dashboard. The UI is fully implemented but currently static—form dropdowns are hardcoded, file uploads are non-persistent, and save/test-call actions are non-functional.
 
-**Your task:** Integrate the static UI with the provided mock API to make the form fully functional.
+**Objective:** Integrate the static UI with the provided mock API to enable full functionality.
 
-## Tech Stack
+## Technology Stack
 
 - **Next.js 16** (App Router)
 - **React 19**
@@ -23,308 +23,109 @@ This project contains a **Create Agent** page from the Olimi AI dashboard. The U
 
 ## Getting Started
 
-### 1. Install dependencies
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Set up environment
+### 2. Configure Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-### 3. Start the mock API server
+### 3. Launch Mock API Server
 
 ```bash
 npm run mock-api
 ```
 
-This starts `json-server` at **http://localhost:3001** with routes prefixed under `/api`.
+This starts `json-server` at **http://localhost:3001** with routes under `/api`.
 
-### 4. Start the Next.js development server
+### 4. Start Next.js Development Server
 
 ```bash
 npm run dev
 ```
 
-Open **http://localhost:3000** — you'll be redirected to the Create Agent page.
+Access **http://localhost:3000** to view the Create Agent page.
 
-> **Note:** Both servers must be running simultaneously. Use two terminal windows/tabs.
+> **Note:** Both servers must be running concurrently. Use separate terminal windows or tabs.
 
 ## Project Structure
 
 ```
 ├── db.json                          # Mock database (json-server)
 ├── server/
-│   ├── middleware.js                 # Custom endpoints (upload, test-call)
+│   ├── middleware.js                # Custom endpoints (upload, test-call)
 │   └── routes.json                  # API route mapping (/api/* → /*)
 ├── src/
 │   ├── app/
 │   │   └── (dashboard)/
 │   │       ├── layout.tsx           # Dashboard layout with sidebar
-            |
 │   │       └── agents/
 │   │           └── createAgent/
 │   │               └── page.tsx     # Create Agent page
 │   └── components/
+│       ├── alert/
+│       │   ├── error-alert.tsx      # API/network error display
+│       │   └── success-alert.tsx    # Success message display
 │       ├── agents/
-│       │   └── agent-form.tsx       # ⭐ MAIN FILE — this is where you'll work
+│       │   ├── agent-sections/      # Form sections (BasicSettings, ReferenceData, Tools, etc.)
+│       │   │   ├── reference-data-section.tsx  # Dropdowns and file uploads
+│       │   │   ├── tools-section.tsx           # Agent tools (hang up, callback, transfer)
+│       │   │   └── ...other sections
+│       │   └── agent-form.tsx       # ⭐ Main orchestration file
 │       ├── ui/                      # shadcn/ui components (do not modify)
 │       ├── app-sidebar.tsx          # Sidebar navigation
-│       ├── nav-main.tsx             # Navigation menu
+│       ├── loading-spinner.tsx      # Loading spinner
+│       ├── nav-main.tsx             # Main navigation menu
 │       └── nav-user.tsx             # User menu
+│   ├── lib/
+│   │   ├── api.tsx                  # Centralized API helpers
+│   │   ├── interfaces.ts            # TypeScript interfaces for API contracts
+│   │   ├── error.handle.ts          # HTTP error normalization
+│   │   └── utils.ts                 # Validation and helper functions
+├── docs/
+│   ├── architecture.svg             # Architecture diagram
+│   └── api_examples.md              # API usage examples
+├── .github/
+│   └── workflows/
+│       └── ci.yml                   # GitHub Actions CI workflow
 └── .env.example                     # Environment template
-```
-
-The primary file you'll be modifying is **`src/components/agents/agent-form.tsx`**. You may create helper files (hooks, utilities, API clients) as needed.
-
-## API Documentation
-
-Base URL: `http://localhost:3001/api` (configured via `NEXT_PUBLIC_API_BASE_URL`)
-
-### Reference Data Endpoints
-
-These endpoints return static lists for populating form dropdowns.
-
-#### GET /api/languages
-
-Returns available languages.
-
-```json
-[
-  { "id": "en", "name": "English", "code": "en" },
-  { "id": "ar", "name": "Arabic", "code": "ar" },
-  { "id": "fr", "name": "French", "code": "fr" }
-]
-```
-
-#### GET /api/voices
-
-Returns available voices. **Note the `tag` field** — display it as a badge next to the voice name.
-
-```json
-[
-  { "id": "alloy", "name": "Alloy", "tag": "Premium", "language": "en" },
-  { "id": "echo", "name": "Echo", "tag": "Standard", "language": "en" }
-]
-```
-
-#### GET /api/prompts
-
-Returns available prompt templates.
-
-```json
-[
-  { "id": "default", "name": "Default Prompt", "description": "General-purpose prompt" },
-  { "id": "sales", "name": "Sales Prompt", "description": "Optimized for sales" }
-]
-```
-
-#### GET /api/models
-
-Returns available AI models.
-
-```json
-[
-  { "id": "pro", "name": "Pro", "description": "Highest quality, lowest latency" },
-  { "id": "standard", "name": "Standard", "description": "Balanced quality and cost" }
-]
-```
-
-### Agent CRUD
-
-#### POST /api/agents
-
-Create a new agent. Send the full form data as JSON.
-
-**Request:**
-
-```json
-{
-  "name": "Sales Assistant",
-  "description": "Handles inbound sales calls",
-  "callType": "inbound",
-  "language": "en",
-  "voice": "alloy",
-  "prompt": "sales",
-  "model": "pro",
-  "latency": 0.5,
-  "speed": 110,
-  "callScript": "...",
-  "serviceDescription": "...",
-  "attachments": ["attachment-id-1"],
-  "tools": {
-    "allowHangUp": true,
-    "allowCallback": false,
-    "liveTransfer": false
-  }
-}
-```
-
-**Response** (201 Created):
-
-```json
-{
-  "id": "generated-id",
-  "name": "Sales Assistant",
-  "...": "..."
-}
-```
-
-#### PUT /api/agents/:id
-
-Update an existing agent. Same body structure as POST.
-
-### File Upload (3-Step Process)
-
-Uploading a file to the agent's reference data requires three API calls:
-
-#### Step 1: Get a signed upload URL
-
-**POST /api/attachments/upload-url**
-
-```json
-// No body required
-```
-
-**Response:**
-
-```json
-{
-  "key": "unique-file-key",
-  "signedUrl": "http://localhost:3001/upload/unique-file-key",
-  "expiresIn": 3600
-}
-```
-
-#### Step 2: Upload the file to the signed URL
-
-**PUT {signedUrl}**
-
-Send the file as the request body (binary).
-
-```
-PUT http://localhost:3001/upload/unique-file-key
-Content-Type: application/octet-stream
-
-<file binary data>
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "key": "unique-file-key",
-  "message": "File uploaded successfully"
-}
-```
-
-#### Step 3: Register the attachment
-
-**POST /api/attachments**
-
-```json
-{
-  "key": "unique-file-key",
-  "fileName": "product-catalog.pdf",
-  "fileSize": 1048576,
-  "mimeType": "application/pdf"
-}
-```
-
-**Response** (201 Created):
-
-```json
-{
-  "id": "generated-id",
-  "key": "unique-file-key",
-  "fileName": "product-catalog.pdf",
-  "fileSize": 1048576,
-  "mimeType": "application/pdf"
----
-# Olimi — Create Agent (Frontend)
-
-This repository contains a focused frontend integration project: a Create Agent page for the Olimi dashboard. The original UI was static; the work in this repo wires the UI to a mock backend so the page is fully functional for local development and evaluation.
-
-Core capabilities implemented
-
-- Dynamic dropdowns: languages, voices (with tags), prompts, models
-- File upload: three-step signed-upload flow (request signed URL → upload → register)
-- Agent CRUD: create (`POST /agents`) and update (`PUT /agents/:id`)
-- Test-call flow: auto-save when needed, then `POST /agents/:id/test-call`
-
-CI: GitHub Actions workflow is included at `.github/workflows/ci.yml`.
-
-Diagram: `docs/architecture.svg` — high-level component and upload flow
-
-API examples: `docs/api_examples.md`
-
-## Tech stack
-
-- Next.js 16 (App Router)
-- React 19 + TypeScript
-- Tailwind CSS 4 + shadcn/ui components
-- json-server for the local mock API
-
-## Quick start
-
-1. Install dependencies
-
-```bash
-npm install
-```
-
-2. (Optional) copy environment template
-
-```bash
-cp .env.example .env.local
-```
-
-3. Start the mock API
-
-```bash
-npm run mock-api
-```
-
-4. Start the Next.js dev server
-
-```bash
-npm run dev
 ```
 
 Open `http://localhost:3000` (the app redirects to the Create Agent page). Run `mock-api` and `dev` concurrently.
 
-## Project layout (pointer view)
+## Project Layout (Quick Reference)
 
-- `db.json` — mock database used by `json-server`
-- `server/` — `routes.json` and `middleware.js` provide custom mock endpoints (uploads/test-calls)
+- `db.json` — mock database for `json-server`
+- `server/` — custom mock endpoints (`routes.json`, `middleware.js`)
 - `src/app/` — layout and routing (`layout.tsx`, `page.tsx`)
-- `src/components/agents/` — main UI; `agent-form.tsx` is the orchestration point; section components live in `agents-sections/`
+- `src/components/agents/` — main UI; `agent-form.tsx` orchestrates logic; section components in `agent-sections/`
 - `src/lib/` — core logic and types:
-  - [src/lib/api.tsx](src/lib/api.tsx) — centralized API helpers and orchestrators
-  - [src/lib/interfaces.ts](src/lib/interfaces.ts) — TypeScript interfaces used across the UI
+  - [src/lib/api.tsx](src/lib/api.tsx) — API helpers and orchestrators
+  - [src/lib/interfaces.ts](src/lib/interfaces.ts) — TypeScript interfaces
   - [src/lib/error.handle.ts](src/lib/error.handle.ts) — HTTP error normalization
   - [src/lib/utils.ts](src/lib/utils.ts) — validation and helpers
 
-Other developer resources: `docs/api_examples.md`, `docs/architecture.svg`, `.github/workflows/ci.yml`.
+Additional resources: `docs/api_examples.md`, `docs/architecture.svg`, `.github/workflows/ci.yml`.
 
-## How the app works (concise)
+## Application Workflow
 
-- On mount, `agent-form.tsx` fetches reference data: languages, voices, prompts, models (separate loading flags for each).
-- Voice list is filtered by selected language using `filterVoicesByLanguage` in `src/lib/api.tsx`.
-- File uploads use a three-step process orchestrated by `src/lib/api.tsx`:
-  1. `POST /attachments/upload-url` → get `{ key, signedUrl, expiresIn }`
-  2. `PUT {signedUrl}` → send binary data to storage
-  3. `POST /attachments` → register and receive an `id` (included in agent attachments)
-- Save flow (`handleSaveAgent`): validate required fields, build payload, call `POST /agents` (or `PUT /agents/:id` when updating). The returned `id` is stored in component state.
-- Test call (`handleStartTestCall`): validates test data, auto-saves agent if needed, then calls `POST /agents/:id/test-call` and surfaces status/errors.
+- On mount, `agent-form.tsx` fetches reference data: languages, voices, prompts, models (with individual loading states).
+- Voice list is filtered by selected language via `filterVoicesByLanguage` in `src/lib/api.tsx`.
+- File uploads follow a three-step process managed by `src/lib/api.tsx`:
+  1. `POST /attachments/upload-url` → obtain `{ key, signedUrl, expiresIn }`
+  2. `PUT {signedUrl}` → upload binary data
+  3. `POST /attachments` → register and receive an `id` (used in agent attachments)
+- Save flow (`handleSaveAgent`): validates required fields, constructs payload, calls `POST /agents` (or `PUT /agents/:id` for updates). The returned `id` is stored in state.
+- Test call (`handleStartTestCall`): validates test data, auto-saves agent if necessary, then calls `POST /agents/:id/test-call` and displays status/errors.
 
-## API summary (local)
+## API Summary
 
-Base URL: `http://localhost:3001/api` (default via `NEXT_PUBLIC_API_BASE_URL`). See `docs/api_examples.md` for curl examples.
+Base URL: `http://localhost:3001/api` (default via `NEXT_PUBLIC_API_BASE_URL`). See `docs/api_examples.md` for usage examples.
 
 - `GET /languages`
 - `GET /voices`
@@ -337,25 +138,25 @@ Base URL: `http://localhost:3001/api` (default via `NEXT_PUBLIC_API_BASE_URL`). 
 - `PUT /agents/:id`
 - `POST /agents/:id/test-call`
 
-## Technical decisions (summary)
+## Technical Highlights
 
-- Central API layer (`src/lib/api.tsx`) isolates HTTP, error handling and multi-step flows from UI components.
-- TypeScript interfaces (`src/lib/interfaces.ts`) make API contracts explicit and improve type safety across components.
-- Local component state with `useState`/`useEffect` keeps the page self-contained; presentational sections are prop-driven for reuse.
-- Validation is handled client-side with `getRequiredFieldErrors` before network calls; server-side validation remains recommended for production.
+- Centralized API layer (`src/lib/api.tsx`) abstracts HTTP, error handling, and multi-step flows from UI components.
+- Explicit TypeScript interfaces (`src/lib/interfaces.ts`) ensure robust API contracts and type safety.
+- Local component state with `useState`/`useEffect` keeps the page self-contained; presentational sections are prop-driven for reusability.
+- Client-side validation via `getRequiredFieldErrors` precedes network calls; server-side validation is recommended for production.
 
-## Error handling & UX
+## Error Handling & User Experience
 
-- Network errors are normalized by `ApiError` (`src/lib/error.handle.ts`) and surfaced via readable messages in the UI.
-- Per-endpoint loading flags prevent invalid interactions; UI uses `ErrorAlert` and `SuccessAlert` components for feedback.
-- Unsaved changes are tracked in `AgentForm` and a `beforeunload` listener prevents accidental navigation.
+- Network errors are normalized by `ApiError` (`src/lib/error.handle.ts`) and presented via clear UI messages.
+- Endpoint-specific loading states prevent invalid actions; UI leverages `ErrorAlert` and `SuccessAlert` for feedback.
+- Unsaved changes are tracked in `AgentForm`, with a `beforeunload` listener to prevent accidental navigation.
 
-## Code quality notes
+## Code Quality
 
-- Code is organized into small, focused modules (API layer, types, UI sections) for readability and testability.
-- Reusable components and typed interfaces promote maintainability and reduce runtime errors.
+- Code is modular and focused (API layer, types, UI sections) for readability and testability.
+- Reusable components and typed interfaces promote maintainability and minimize runtime errors.
 
-## Where to look first
+## Key Files
 
 - API & orchestrators: [src/lib/api.tsx](src/lib/api.tsx)
 - Types & validation: [src/lib/interfaces.ts](src/lib/interfaces.ts), [src/lib/utils.ts](src/lib/utils.ts)
@@ -364,13 +165,14 @@ Base URL: `http://localhost:3001/api` (default via `NEXT_PUBLIC_API_BASE_URL`). 
 
 ## Troubleshooting
 
-- Dropdowns empty: ensure `npm run mock-api` is running and `NEXT_PUBLIC_API_BASE_URL` points to `http://localhost:3001/api`.
-- Upload failures: inspect browser console and `server/middleware.js` to understand the mock upload behavior.
+- Empty dropdowns: Ensure `npm run mock-api` is running and `NEXT_PUBLIC_API_BASE_URL` is set to `http://localhost:3001/api`.
+- Upload issues: Check browser console and `server/middleware.js` for mock upload behavior.
 
-## Next steps (optional)
+## Next Steps (Optional)
 
-- Add CI badge (requires repo slug)
-- Open a PR with these changes
-- Add automated tests (unit & integration) and extend CI to run them
+- Add CI badge (requires repository slug)
+- Open a pull request with these changes
+- Implement automated tests (unit & integration) and extend CI
 
-If you want any of the items above I can add them next (badge, PR, tests).
+If you require any of the above enhancements (badge, PR, tests), please let me know.
+
