@@ -150,6 +150,28 @@
         "liveTransfer": false
       },
       "id": 1
+    },
+    {
+      "name": "Sales Agent",
+      "description": "djdjjjsjbn sjsjsjs",
+      "callType": "outbound",
+      "language": "en",
+      "voice": "echo",
+      "prompt": "sales",
+      "model": "standard",
+      "latency": 0.5,
+      "speed": 110,
+      "callScript": "sshsjjsjhjsjs",
+      "serviceDescription": "shhjsjshsjs",
+      "attachments": [
+        3
+      ],
+      "tools": {
+        "allowHangUp": false,
+        "allowCallback": true,
+        "liveTransfer": false
+      },
+      "id": 2
     }
   ],
   "attachments": [
@@ -166,6 +188,13 @@
       "fileSize": 35158,
       "mimeType": "application/pdf",
       "id": 2
+    },
+    {
+      "key": "aa8476da-c1fa-4fc5-9952-8519594c817c",
+      "fileName": "photo_6028528865786923941_x.pdf",
+      "fileSize": 35158,
+      "mimeType": "application/pdf",
+      "id": 3
     }
   ]
 }
