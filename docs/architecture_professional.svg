@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520">
+  <defs>
+    <style>
+      .title { font: 600 22px Inter, Arial, sans-serif; fill:#0f172a; }
+      .subtitle { font: 14px Inter, Arial, sans-serif; fill:#475569; }
+      .section { font: 600 14px Inter, Arial, sans-serif; fill:#0f172a; letter-spacing:0.5px; }
+      .label { font: 13px Inter, Arial, sans-serif; fill:#0f172a; }
+      .small { font: 12px Inter, Arial, sans-serif; fill:#475569; }
+      .box { fill:#ffffff; stroke:#e2e8f0; stroke-width:1.2; rx:12; }
+      .group { fill:#f8fafc; stroke:#e2e8f0; stroke-width:1; rx:16; }
+      .arrow { stroke:#334155; stroke-width:2; fill:none; marker-end:url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Header -->
+  <text class="title" x="40" y="50">Olimi — Create Agent Architecture</text>
+  <text class="subtitle" x="40" y="75">High-Level System Overview</text>
+
+  <!-- Frontend Group -->
+  <rect class="group" x="40" y="110" width="420" height="320"/>
+  <text class="section" x="60" y="140">Frontend (Client)</text>
+
+  <rect class="box" x="60" y="160" width="380" height="80"/>
+  <text class="label" x="80" y="190">Browser / Client Application</text>
+  <text class="small" x="80" y="210">Next.js · React · shadcn/ui</text>
+
+  <rect class="box" x="60" y="260" width="380" height="100"/>
+  <text class="label" x="80" y="290">AgentForm Component</text>
+  <text class="small" x="80" y="310">Validation · State Management</text>
+  <text class="small" x="80" y="330">Submits Create Agent Request</text>
+
+  <!-- Backend Group -->
+  <rect class="group" x="520" y="110" width="540" height="320"/>
+  <text class="section" x="540" y="140">Backend (Server)</text>
+
+  <rect class="box" x="540" y="170" width="500" height="80"/>
+  <text class="label" x="560" y="200">API Route /agents</text>
+  <text class="small" x="560" y="220">Authentication · Input Validation</text>
+
+  <rect class="box" x="540" y="270" width="240" height="100"/>
+  <text class="label" x="560" y="300">Agent Service</text>
+  <text class="small" x="560" y="320">Business Logic</text>
+  <text class="small" x="560" y="340">Agent Configuration</text>
+
+  <rect class="box" x="800" y="270" width="240" height="100"/>
+  <text class="label" x="820" y="300">Database</text>
+  <text class="small" x="820" y="320">Persist Agent</text>
+  <text class="small" x="820" y="340">Metadata & Settings</text>
+
+  <!-- Arrows -->
+  <line class="arrow" x1="250" y1="240" x2="250" y2="260"/>
+  <line class="arrow" x1="440" y1="310" x2="520" y2="210"/>
+  <line class="arrow" x1="790" y1="320" x2="800" y2="320"/>
+  <line class="arrow" x1="1040" y1="320" x2="1040" y2="320"/>
+
+  <!-- Footer Note -->
+  <text class="small" x="40" y="470">Flow: Client → API Route → Service Layer → Database</text>
+</svg>
