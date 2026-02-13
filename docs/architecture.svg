@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420">
+  <style>
+    .title { font: bold 18px sans-serif; fill:#0f172a }
+    .label { font: 12px sans-serif; fill:#0f172a }
+    .box { fill:#fff; stroke:#cbd5e1; stroke-width:1; rx:8; }
+    .arrow { stroke:#334155; stroke-width:2; fill:none; marker-end:url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155" />
+    </marker>
+  </defs>
+
+  <text class="title" x="20" y="28">Olimi — Create Agent (high-level)</text>
+
+  <!-- Browser / UI -->
+  <rect class="box" x="20" y="48" width="220" height="80" />
+  <text class="label" x="40" y="72">Browser / Client</text>
+  <text class="label" x="40" y="92">Next.js + React + shadcn/ui</text>
+
+  <!-- Agent Form -->
+  <rect class="box" x="280" y="30" width="300" height="120" />
+  <text class="label" x="300" y="54">AgentForm</text>
+  <text class="label" x="300" y="74">- BasicSettings</text>
+  <text class="label" x="300" y="94">- ReferenceData (upload)</text>
+  <text class="label" x="300" y="114">- TestCallCard</text>
+
+  <!-- API Layer -->
+  <rect class="box" x="280" y="170" width="300" height="80" />
+  <text class="label" x="300" y="196">API Layer</text>
+  <text class="label" x="300" y="216">src/lib/api.tsx</text>
+
+  <!-- Mock Backend -->
+  <rect class="box" x="640" y="48" width="220" height="120" />
+  <text class="label" x="660" y="72">json-server (mock)</text>
+  <text class="label" x="660" y="92">db.json + server/middleware.js</text>
+
+  <!-- Storage endpoint (signed URL) -->
+  <rect class="box" x="640" y="200" width="220" height="80" />
+  <text class="label" x="660" y="224">Storage (signed URL)</text>
+  <text class="label" x="660" y="244">PUT {signedUrl}</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M240 88 L280 88" />
+  <path class="arrow" d="M580 88 L640 88" />
+
+  <path class="arrow" d="M430 150 L430 170" />
+  <path class="arrow" d="M760 150 L760 200" />
+
+  <!-- Upload flow -->
+  <path class="arrow" d="M420 150 L660 150" />
+  <text class="label" x="520" y="142">1) POST /attachments/upload-url</text>
+  <path class="arrow" d="M760 240 L420 240" />
+  <text class="label" x="470" y="254">3) POST /attachments (register)</text>
+  <path class="arrow" d="M660 240 L760 240" />
+  <text class="label" x="690" y="232">2) PUT {signedUrl}</text>
+
+  <!-- Notes -->
+  <text class="label" x="20" y="380">Legend: Client → API Layer → json-server; Upload uses signed URL (3-step).</text>
+</svg>

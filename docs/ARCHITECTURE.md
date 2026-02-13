@@ -105,12 +105,16 @@ Scalability & extension points
 - Replace `json-server` with a lightweight backend (Express/Next API routes) during staging to better mimic production behaviour.
 - For large files, consider chunked uploads and resumable uploads (e.g., tus or multipart with ranges).
 
-Visual diagram
 
-- See `docs/architecture.svg` for a visual summary of the components and the 3-step upload flow.
+ 
+ - Sequence diagram
+ 
+ - See `docs/sequence_diagram.md` for a Mermaid sequence diagram showing the full request timeline (upload + save + test-call).
+ 
+ 
+ 
 
 Appendix — quick pointers
-
 - Upload orchestrator: `src/lib/api.tsx` → `uploadFile`, `getUploadUrl`, `uploadFileToSignedUrl`, `registerAttachment`.
 - Main form orchestration: `src/components/agents/agent-form.tsx`.
 - Mock server behaviour: `server/middleware.js`, `server/routes.json`, `db.json`.
